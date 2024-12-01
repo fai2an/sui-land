@@ -20,7 +20,7 @@ const App = () => {
             </div>
           }
         />
-        <Route path="/dashboard" element={<Dashboard />} />{" "}
+        <Route path="/dashboard" element={<Dashboard />} />
       </Routes>
     </Router>
   );
