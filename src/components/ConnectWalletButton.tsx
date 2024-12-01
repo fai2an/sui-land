@@ -1,22 +1,29 @@
-import { useWallet } from "@mysten/wallet-adapter-react";
+import { useConnectWallet, useWallets } from "@mysten/dapp-kit";
 
 const ConnectWalletButton = () => {
-  const { wallets, select, connected, disconnect, wallet } = useWallet();
-
-  const handleConnect = async () => {
-    if (!connected) {
-      await select(wallets[0].adapter);
-    } else {
-      disconnect();
-    }
-  };
+  const wallets = useWallets();
+  const { mutate: connect } = useConnectWallet();
 
   return (
-    <div>
-      <button onClick={handleConnect}>
-        {connected ? "Disconnect Wallet" : "Connect Wallet"}
-      </button>
-      {connected && wallet && <p>Connected Wallet: {wallet.address}</p>}
+    <div style={{ padding: 20 }}>
+      <ul>
+        {wallets.map((wallet) => (
+          <li key={wallet.name}>
+            <button
+              onClick={() => {
+                connect(
+                  { wallet },
+                  {
+                    onSuccess: () => console.log("connected"),
+                  },
+                );
+              }}
+            >
+              Connect to {wallet.name}
+            </button>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };

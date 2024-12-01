@@ -1,4 +1,4 @@
-import ConnectWalletButton from "./components/ConnectWalletButton";
+import ConnectWalletButton from "./components/ConnectWalletButton.tsx";
 
 const App = () => {
   return (
