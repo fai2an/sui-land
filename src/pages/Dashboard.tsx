@@ -1,11 +1,9 @@
-import CreateTokenForm from "../components/CreateTokenForm.tsx";
-import WalletInterface from "../components/WalletInterface.tsx";
+import WalletDashboard from "../components/WalletDashboard.tsx";
 
 const Dashboard = () => {
   return (
     <div>
-      <CreateTokenForm />
-      <WalletInterface />
+      <WalletDashboard />
     </div>
   );
 };
