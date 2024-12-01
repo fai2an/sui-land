@@ -1,5 +1,7 @@
+import CreateTokenForm from "../components/CreateTokenForm.tsx";
+
 const Dashboard = () => {
-  return <h1>Welcome to your Dashboard!</h1>;
+  return <CreateTokenForm />;
 };
 
 export default Dashboard;
