@@ -1,0 +1,31 @@
+# Ignore operating system files
+.DS_Store
+Thumbs.db
+
+# Ignore IDE and editor files
+.vscode/
+.idea/
+.editorconfig
+
+# Ignore build and compilation files
+build/
+dist/
+node_modules/
+target/
+
+# Ignore logs and temporary files
+*.log
+*.tmp
+*.temp
+
+# Ignore binary files
+*.exe
+*.bin
+*.zip
+*.rar
+*.7z
+
+# Ignore sensitive files
+*.env
+*.secret
+*.key
