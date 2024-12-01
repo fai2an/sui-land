@@ -16,9 +16,9 @@ module sui_land::proxy {
     use sui::transfer;
 
     // Asset tokenization imports
-    use sui_project::tokenized_asset::{TokenizedAsset, PlatformCap};
+    use sui_land::tokenized_asset::{TokenizedAsset, PlatformCap};
 
-    friend sui_project::unlock;
+    friend sui_land::unlock;
 
     const ETypeNotFromPackage: u64 = 1;
 
