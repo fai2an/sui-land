@@ -1,11 +1,18 @@
 import { useState } from "react";
 import SendModal from "./SendModal.tsx";
+import ReceiveModal from "./ReceiveModal.tsx";
 
 const WalletInterface = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSendModalOpen, setIsSendModalOpen] = useState(false);
+  const [isReceiveModalOpen, setIsReceiveModalOpen] = useState(false);
 
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  const userAddress = "0x1234...abcd";
+
+  const openSendModal = () => setIsSendModalOpen(true);
+  const closeSendModal = () => setIsSendModalOpen(false);
+
+  const openReceiveModal = () => setIsReceiveModalOpen(true);
+  const closeReceiveModal = () => setIsReceiveModalOpen(false);
 
   const handleSend = (address: string) => {
     console.log("Sending to:", address);
@@ -23,22 +30,30 @@ const WalletInterface = () => {
 
       {/* Send and Receive Buttons */}
       <div className="flex justify-between w-full">
-        <button className="w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 mr-2">
+        <button
+          onClick={openReceiveModal}
+          className="w-full py-2 px-4 bg-blue-600 text-white font-semibold rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 mr-2"
+        >
           Receive
         </button>
         <button
-          onClick={openModal}
+          onClick={openSendModal}
           className="w-full py-2 px-4 bg-green-600 text-white font-semibold rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 ml-2"
         >
           Send
         </button>
       </div>
 
-      {/* Send Modal */}
+      {/* Modals */}
       <SendModal
-        isOpen={isModalOpen}
-        onClose={closeModal}
+        isOpen={isSendModalOpen}
+        onClose={closeSendModal}
         onSend={handleSend}
+      />
+      <ReceiveModal
+        isOpen={isReceiveModalOpen}
+        onClose={closeReceiveModal}
+        userAddress={userAddress}
       />
     </div>
   );
