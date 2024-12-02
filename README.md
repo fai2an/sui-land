@@ -129,13 +129,33 @@ This project solves these issues by enabling:
 
    ```
 
-2. **Start a Local SUI Replica**: RUST_LOG="off,sui_node=info" sui start
+2. **Start a Local SUI Replica**:
+
+   ```bash
+   RUST_LOG="off,sui_node=info" sui start
    --with-faucet --force-regenesis
 
-3. **Build the Project**: sui move build
+   ```
 
-4. **Publish the Project**: sui client publish --gas-budget 1000000
+3. **Build the Project**: ```bash sui move build
 
-5. **Install Dependencies**: yarn install
+   ```
 
-6. **Run the Project Locally**: yarn dev
+   ```
+
+4. **Publish the Project**: ```bash sui client publish --gas-budget 1000000
+
+   ```
+
+   ```
+
+5. **Install Dependencies**:
+
+   ```bash
+   yarn install
+   ```
+
+6. **Run the Project Locally**: ```bash yarn dev
+   ```
+
+   ```
