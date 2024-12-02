@@ -65,10 +65,12 @@ const CreateTokenForm = () => {
     e.preventDefault();
 
     try {
-      // Create the asset using the new_asset function
       const tx = new Transaction();
 
+      // Extract asset and metadata details
       const assetName = createTokenForm.asset_name || "";
+      const metadata = createTokenForm.metadata || {};
+      const supplyCap = createTokenForm.supply_cap[0];
 
       const keys = [
         "property_name",
@@ -80,51 +82,47 @@ const CreateTokenForm = () => {
       ];
 
       const values = [
-        createTokenForm.metadata.property_name || "",
-        createTokenForm.metadata.location || "",
-        createTokenForm.metadata.size_sqm?.toString() || "",
-        createTokenForm.metadata.year_acquired?.toString() || "",
-        createTokenForm.metadata.owner_name || "",
-        createTokenForm.metadata.plot_number || "",
+        metadata.property_name || "",
+        metadata.location || "",
+        metadata.size_sqm?.toString() || "",
+        metadata.year_acquired?.toString() || "",
+        metadata.owner_name || "",
+        metadata.plot_number || "",
       ];
 
-      const supplyCap = createTokenForm.supply_cap[0];
+      // Ensure supplyCap is greater than zero
+      if (supplyCap <= 0) {
+        alert("Supply cap must be greater than zero.");
+        return;
+      }
 
-      // Serialize the arguments before passing them to moveCall
+      // Serialize arguments for moveCall
       const serializedAssetName = bcs.string().serialize(assetName).toBytes();
       const serializedSupplyCap = bcs
         .u64()
         .serialize(BigInt(supplyCap))
-        .toBytes(); // Serialize as u64
-      const serializedKeys = bcs.vector(bcs.string()).serialize(keys).toBytes(); // Serialize vector of strings
+        .toBytes();
+      const serializedKeys = bcs.vector(bcs.string()).serialize(keys).toBytes();
       const serializedValues = bcs
         .vector(bcs.string())
         .serialize(values)
-        .toBytes(); // Serialize vector of strings
+        .toBytes();
 
       // Call the new_asset function
       tx.moveCall({
         target: `${packageId}::sui_land::tokenized_asset::new_asset`,
         arguments: [
-          tx.pure(serializedAssetName), // Pass the serialized asset name
-          tx.pure(serializedSupplyCap), // Pass the serialized supply cap
-          tx.pure(serializedKeys), // Pass the serialized keys
-          tx.pure(serializedValues), // Pass the serialized values
+          tx.pure(serializedSupplyCap), // Pass supply cap
+          tx.pure(serializedAssetName), // Pass asset name
+          tx.pure(serializedKeys), // Pass keys
+          tx.pure(serializedValues), // Pass values
         ],
       });
 
-      console.log("Transaction:", tx);
-      console.log("Options:", { showEffects: true });
+      // Execute the transaction
+      const result = await signAndExecuteTransaction({ transaction: tx });
 
-      // Execute the transaction to create the asset and get the asset cap ID
-      const result = await signAndExecuteTransaction({
-        transaction: tx,
-      });
-
-      // Retrieve the asset cap ID from the transaction result
-      console.log("asset cap ID: ", result);
       const assetCapId = result.effects?.events?.[0]?.data?.asset_cap_id;
-
       if (!assetCapId) {
         alert("Asset creation failed. No asset cap ID returned.");
         return;
@@ -132,30 +130,27 @@ const CreateTokenForm = () => {
 
       console.log("Asset created successfully. Asset Cap ID:", assetCapId);
 
-      // Use the Asset Cap ID to mint the asset
+      // Proceed with minting the asset
       const mintTx = new Transaction();
-
       mintTx.moveCall({
         target: `${packageId}::sui_land::tokenized_asset::mint`,
         arguments: [
-          tx.object(assetCapId), // Pass the Asset Cap ID as an object
-          tx.pure(serializedKeys), // keys is a vector of strings
-          tx.pure(serializedValues), // values is a vector of strings
-          tx.pure(serializedSupplyCap), // Supply cap should be a u64
+          tx.object(assetCapId), // Asset Cap ID for minting
+          tx.pure(serializedKeys), // Keys
+          tx.pure(serializedValues), // Values
+          tx.pure(serializedSupplyCap), // Supply cap
         ],
       });
 
-      // Execute the minting transaction
+      // Execute minting
       const mintResult = await signAndExecuteTransaction({
         transaction: mintTx,
       });
 
-      console.log("Minting result:", mintResult);
-
       if (mintResult.effects?.status === "success") {
         alert("Token minted successfully!");
       } else {
-        alert("Minting failed. Check the console for more details.");
+        alert("Minting failed.");
       }
     } catch (error) {
       console.error("Error creating and minting token:", error);

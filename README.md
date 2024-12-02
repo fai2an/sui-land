@@ -1,103 +1,141 @@
-# Sui dApp Starter Template
+# Tokenizing Real Estate Properties Using Semi-Fungible Tokens (SFT) on the SUI Blockchain
 
-This dApp was created using `@mysten/create-dapp` that sets up a basic React
-Client dApp using the following tools:
+## **Project Overview**
 
-- [React](https://react.dev/) as the UI framework
-- [TypeScript](https://www.typescriptlang.org/) for type checking
-- [Vite](https://vitejs.dev/) for build tooling
-- [Radix UI](https://www.radix-ui.com/) for pre-built UI components
-- [ESLint](https://eslint.org/) for linting
-- [`@mysten/dapp-kit`](https://sdk.mystenlabs.com/dapp-kit) for connecting to
-  wallets and loading data
-- [pnpm](https://pnpm.io/) for package management
+## **Sui Land PackageID**: 0x7e37c2fe0334c17258a0e5c5df106c15a517d65358fcae68546ec9d2a13e6890
 
-For a full guide on how to build this dApp from scratch, visit this
-[guide](http://docs.sui.io/guides/developer/app-examples/e2e-counter#frontend).
+### **Sector**: Real Estate
 
-## Deploying your Move code
+This project revolutionizes real estate investment by addressing the significant
+capital requirements and liquidity issues that plague the industry. By
+leveraging blockchain technology, specifically the SUI blockchain, and
+Semi-Fungible Tokens (SFTs), it aims to democratize real estate investments. The
+platform allows users to tokenize real estate properties, enabling fractional
+ownership and lowering entry barriers for young or inexperienced investors.
 
-### Install Sui cli
+---
 
-Before deploying your move code, ensure that you have installed the Sui CLI. You
-can follow the [Sui installation instruction](https://docs.sui.io/build/install)
-to get everything set up.
+## **How It Works**
 
-This template uses `testnet` by default, so we'll need to set up a testnet
-environment in the CLI:
+The platform converts real estate assets into digital tokens, enabling
+fractional ownership. However, SUI does not natively support SFTs. Instead, the
+process involves two steps using custom logic:
 
-```bash
-sui client new-env --alias testnet --rpc https://fullnode.testnet.sui.io:443
-sui client switch --env testnet
-```
+1. **New Asset Creation**:
 
-If you haven't set up an address in the sui client yet, you can use the
-following command to get a new address:
+   - A unique asset is created by calling the `new_asset` function.
+   - This function mints a Non-Fungible Token (NFT) representing the property
+     being tokenized.
+   - The `asset_capId` is generated, which uniquely identifies the tokenized
+     property.
 
-```bash
-sui client new-address secp256k1
-```
+2. **Minting Fractional Tokens**:
+   - The `mint` function is called, using the `asset_capId` as an argument.
+   - This function creates multiple identical copies of the previously generated
+     NFT, effectively turning it into Semi-Fungible Tokens (SFTs).
+   - These tokens represent fractional ownership of the property.
 
-This well generate a new address and recover phrase for you. You can mark a
-newly created address as you active address by running the following command
-with your new address:
+---
 
-```bash
-sui client switch --address 0xYOUR_ADDRESS...
-```
+## **Platform Features**
 
-We can ensure we have some Sui in our new wallet by requesting Sui from the
-faucet (make sure to replace the address with your address):
+### **User Dashboard**
 
-```bash
-curl --location --request POST 'https://faucet.testnet.sui.io/gas' \
---header 'Content-Type: application/json' \
---data-raw '{
-    "FixedAmountRequest": {
-        "recipient": "<YOUR_ADDRESS>"
-    }
-}'
-```
+- A personal dashboard for users to manage tokenization processes.
 
-### Publishing the move package
+### **Property Details**
 
-The move code for this template is located in the `move` directory. To publish
-it, you can enter the `move` directory, and publish it with the Sui CLI:
+- Fields to input critical property information:
+  - Location
+  - Size
+  - Type (residential/commercial)
+  - Estimated value
 
-```bash
-cd move
-sui client publish --gas-budget 100000000 counter
-```
+### **Document Upload**
 
-In the output there will be an object with a `"packageId"` property. You'll want
-to save that package ID to the `src/constants.ts` file as `PACKAGE_ID`:
+- Upload important documents, such as:
+  - Title deeds
+  - Sale agreements
+  - Property photos
 
-```ts
-export const TESTNET_COUNTER_PACKAGE_ID = "<YOUR_PACKAGE_ID>";
-```
+### **Minting as SFT**
 
-Now that we have published the move code, and update the package ID, we can
-start the app.
+- Users can tokenize their property into SFTs after providing all details and
+  uploading documents.
+- Each token represents a share in the property’s value.
 
-## Starting your dApp
+---
 
-To install dependencies you can run
+## **Target Users**
 
-```bash
-pnpm install
-```
+### **Young Investors/Students**
 
-To start your dApp in development mode run
+- Individuals early in their careers or students with limited capital who are
+  keen to invest in real estate.
 
-```bash
-pnpm dev
-```
+### **Small Investors**
 
-## Building
+- Those looking to diversify their portfolios with fractional property
+  investments.
 
-To build your app for deployment you can run
+---
 
-```bash
-pnpm build
-```
-# sui-land
+## **Problem Statement**
+
+The traditional real estate market is riddled with challenges:
+
+1. **High Capital Requirements**:
+   - Purchasing real estate is cost-prohibitive for many, especially younger
+     generations.
+2. **Liquidity Issues**:
+   - Selling real estate involves lengthy processes, agents, fees, and market
+     value discrepancies.
+
+This project solves these issues by enabling:
+
+- Affordable fractional ownership.
+- Instant liquidity through blockchain-powered token exchanges.
+
+---
+
+## **Project Setup**
+
+### **Prerequisites**
+
+1. **Install the SUI CLI**:
+   - Follow [SUI's official guide](https://docs.sui.io) for installation.
+2. **Create a SUI Wallet**:
+   - Download and install the SUI wallet extension on your Chrome browser.
+3. **Create a Wallet Address**:
+   - Run the following command to create an address with the ED25519 key scheme:
+     ```bash
+     sui client new-address ed25519
+     ```
+4. **Faucet for Gas Tokens**:
+   - Obtain tokens for transaction fees using:
+     ```bash
+     sui client faucet
+     ```
+
+---
+
+### **Steps to Run Locally**
+
+1. **Clone the Repository**:
+
+   ```bash
+   git clone https://github.com/your-repo/sui_land.git
+   cd sui_land
+
+   ```
+
+2. **Start a Local SUI Replica**: RUST_LOG="off,sui_node=info" sui start
+   --with-faucet --force-regenesis
+
+3. **Build the Project**: sui move build
+
+4. **Publish the Project**: sui client publish --gas-budget 1000000
+
+5. **Install Dependencies**: yarn install
+
+6. **Run the Project Locally**: yarn dev
