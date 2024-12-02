@@ -1,9 +1,15 @@
 import { useState } from "react";
+import { useSignAndExecuteTransaction } from "@mysten/dapp-kit";
+import { Transaction } from "@mysten/sui/transactions";
+import { bcs } from "@mysten/bcs";
 
 const CreateTokenForm = () => {
+  const packageId =
+    "0x7e37c2fe0334c17258a0e5c5df106c15a517d65358fcae68546ec9d2a13e6890";
+  const { mutate: signAndExecuteTransaction } = useSignAndExecuteTransaction();
   const [createTokenForm, setCreateTokenForm] = useState({
     asset_name: "",
-    supply_cap: [0],
+    supply_cap: [100],
     challenge: null,
     metadata: {
       property_name: "",
@@ -11,7 +17,7 @@ const CreateTokenForm = () => {
       size_sqm: "",
       year_acquired: "",
       owner_name: "",
-      property_document: null,
+      //   property_document: null,
       plot_number: "",
     },
     name: "",
@@ -55,10 +61,106 @@ const CreateTokenForm = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(createTokenForm);
-    //mint logic goes here
+
+    try {
+      // Create the asset using the new_asset function
+      const tx = new Transaction();
+
+      const assetName = createTokenForm.asset_name || "";
+
+      const keys = [
+        "property_name",
+        "location",
+        "size_sqm",
+        "year_acquired",
+        "owner_name",
+        "plot_number",
+      ];
+
+      const values = [
+        createTokenForm.metadata.property_name || "",
+        createTokenForm.metadata.location || "",
+        createTokenForm.metadata.size_sqm?.toString() || "",
+        createTokenForm.metadata.year_acquired?.toString() || "",
+        createTokenForm.metadata.owner_name || "",
+        createTokenForm.metadata.plot_number || "",
+      ];
+
+      const supplyCap = createTokenForm.supply_cap[0];
+
+      // Serialize the arguments before passing them to moveCall
+      const serializedAssetName = bcs.string().serialize(assetName).toBytes();
+      const serializedSupplyCap = bcs
+        .u64()
+        .serialize(BigInt(supplyCap))
+        .toBytes(); // Serialize as u64
+      const serializedKeys = bcs.vector(bcs.string()).serialize(keys).toBytes(); // Serialize vector of strings
+      const serializedValues = bcs
+        .vector(bcs.string())
+        .serialize(values)
+        .toBytes(); // Serialize vector of strings
+
+      // Call the new_asset function
+      tx.moveCall({
+        target: `${packageId}::sui_land::tokenized_asset::new_asset`,
+        arguments: [
+          tx.pure(serializedAssetName), // Pass the serialized asset name
+          tx.pure(serializedSupplyCap), // Pass the serialized supply cap
+          tx.pure(serializedKeys), // Pass the serialized keys
+          tx.pure(serializedValues), // Pass the serialized values
+        ],
+      });
+
+      console.log("Transaction:", tx);
+      console.log("Options:", { showEffects: true });
+
+      // Execute the transaction to create the asset and get the asset cap ID
+      const result = await signAndExecuteTransaction({
+        transaction: tx,
+      });
+
+      // Retrieve the asset cap ID from the transaction result
+      console.log("asset cap ID: ", result);
+      const assetCapId = result.effects?.events?.[0]?.data?.asset_cap_id;
+
+      if (!assetCapId) {
+        alert("Asset creation failed. No asset cap ID returned.");
+        return;
+      }
+
+      console.log("Asset created successfully. Asset Cap ID:", assetCapId);
+
+      // Use the Asset Cap ID to mint the asset
+      const mintTx = new Transaction();
+
+      mintTx.moveCall({
+        target: `${packageId}::sui_land::tokenized_asset::mint`,
+        arguments: [
+          tx.object(assetCapId), // Pass the Asset Cap ID as an object
+          tx.pure(serializedKeys), // keys is a vector of strings
+          tx.pure(serializedValues), // values is a vector of strings
+          tx.pure(serializedSupplyCap), // Supply cap should be a u64
+        ],
+      });
+
+      // Execute the minting transaction
+      const mintResult = await signAndExecuteTransaction({
+        transaction: mintTx,
+      });
+
+      console.log("Minting result:", mintResult);
+
+      if (mintResult.effects?.status === "success") {
+        alert("Token minted successfully!");
+      } else {
+        alert("Minting failed. Check the console for more details.");
+      }
+    } catch (error) {
+      console.error("Error creating and minting token:", error);
+      alert("An error occurred while creating and minting the token.");
+    }
   };
 
   return (
@@ -92,7 +194,7 @@ const CreateTokenForm = () => {
         </div>
 
         {/* Supply Cap */}
-        <div className="mb-6">
+        {/* <div className="mb-6">
           <label
             htmlFor="supply_cap"
             className="block text-sm font-medium text-gray-600"
@@ -108,7 +210,7 @@ const CreateTokenForm = () => {
             className="mt-2 block w-full py-3 px-4 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 text-gray-600"
             placeholder="Enter supply cap"
           />
-        </div>
+        </div> */}
 
         {/* Metadata */}
         <div className="mb-6">
@@ -231,7 +333,7 @@ const CreateTokenForm = () => {
           </div>
 
           {/* Property Document */}
-          <div className="mb-4">
+          {/* <div className="mb-4">
             <label
               htmlFor="property_document"
               className="block text-sm font-medium text-gray-600"
@@ -245,7 +347,7 @@ const CreateTokenForm = () => {
               accept=".pdf, .jpg, .png"
               onChange={handleChallenge}
             />
-          </div>
+          </div> */}
         </div>
 
         {/* Submit Button */}
